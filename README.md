@@ -17,7 +17,7 @@ Label length and image quality become a serious challenge here, because we must 
 
 ## MODEL STRUCTURE: 
 
-**Image CNN + Attention Features encoder --> text Attention + CNN feature layer decoder.**
+**Image CNN + Attention Image Encoder --> Attention + Dense Text Decoder.**
 
 This is a hybrid approach with:
  
