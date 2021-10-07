@@ -128,7 +128,7 @@ class ImageEncoderBackbone(keras.layers.Layer):
         height = self.image_shape[0]
         width = self.image_shape[1]
 
-        base_transfer_model = keras.applications.EfficientNetB2(
+        base_transfer_model = keras.applications.EfficientNetB3(
                                 include_top=False, 
                                 weights=None,
                                 input_shape=[height, width, 3])
@@ -138,7 +138,7 @@ class ImageEncoderBackbone(keras.layers.Layer):
         
         self.transfer_model = keras.Model(inputs=base_transfer_model.inputs, 
                                     outputs=base_transfer_model.get_layer('top_activation').output, 
-                                    name='transfer_model')
+                                    name='EfficientNet')
 
     
     def config(self):
@@ -155,7 +155,7 @@ class ImageEncoderBackbone(keras.layers.Layer):
         return image
 
     def show_summary(self):
-        image = tf.keras.layers.Input(shape=[320,320,3], name='image')
+        image = tf.keras.layers.Input(shape=[448, 448, 3], name='image')
         inputs = image
         outputs = self.call(inputs)  # note: use self.call() for all layers to show in summary
         return tf.keras.Model(inputs, outputs, name=self.name).summary()

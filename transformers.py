@@ -13,13 +13,17 @@ block.  Both encoder and decoder contain trainable positional encodings
 """
 
 class AddPositional(tf.keras.layers.Layer):
-    """ Creates and adds a positional encoding variable of shape [batch, num, dim] """
+    """ Creates and adds a positional encoding variable of shape [batch, num, dim].
+    Initialized at value matching AIAYN paper, with option to be trainable. """
 
-    def __init__(self, **kwargs):
+    def __init__(self, trainable=False, **kwargs):
         super().__init__(**kwargs)
+        self.trainable = trainable
 
     def get_config(self):
-        return super().get_config()
+        config = super().get_config()
+        config.update({'trainable': self.trainable})
+        return config
 
     def build(self, input_shape):
 
@@ -28,14 +32,16 @@ class AddPositional(tf.keras.layers.Layer):
 
         # create positional encoding vector appropriate for 2D vectors
         def trig(k, dim):
-            denom = 2*(1 + dim) / feature_dim
+            denom_exp = 2*dim / feature_dim
+            denom = 10000 ** denom_exp
             even = k % 2
             odd = (k+1) % 2
             return even * np.math.sin(k / denom) + odd * np.math.cos(k / denom)
         self.positional_encoding = tf.Variable([[trig(k, dim) 
                                                  for dim in range(feature_dim)]
                                                  for k in range(num_obj)],
-                                                trainable=True, name='positional_encoding')
+                                                trainable=self.trainable, 
+                                                name='positional_encoding')
 
     def call(self, inputs):
         feature = inputs
@@ -138,7 +144,7 @@ class EncoderAttention(tf.keras.layers.Layer):
         self.num_attention_heads = num_attention_heads
         self.num_blocks = num_blocks
 
-        self.AddPositional = AddPositional(name='AddPositional')
+        self.AddPositional = AddPositional(name='AddPositional', trainable=True)
         
         # Attention Blocks
         self.SelfAttentionBlocks = []
@@ -188,7 +194,7 @@ class DecoderAttention(tf.keras.layers.Layer):
         self.num_attention_heads = num_attention_heads
         self.num_blocks = num_blocks
 
-        self.AddPositional = AddPositional(name='AddPositional')
+        self.AddPositional = AddPositional(name='AddPositional', trainable=False)
         
         # Attention Blocks
         self.SelfAttentionBlocks = []

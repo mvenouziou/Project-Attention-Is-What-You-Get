@@ -43,7 +43,7 @@ class ModelParameters:
         # TPU batch size
         if self._tpu:
             # note: utilize steps_per_execution compile parameter to increase TPU throughput
-            self._batch_size = 128 * self._strategy.num_replicas_in_sync  
+            self._batch_size = 64 * self._strategy.num_replicas_in_sync  
 
         # File Paths       
         if cloud_server == 'colab':  # Google Colab
